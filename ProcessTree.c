@@ -5,120 +5,106 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <errno.h>
+/*
 #include <netdb.h>
 #include <sys/types.h>
 #include <pthread.h>
 #include <unistd.h>
 #include <dirent.h>
+*/
 
-char default_path[1024]="/proc/";
+const char ProcDir[7] = "/proc/";
+int Total;
 
-int s=0;
+typedef struct ProcInfo{
+    int  ItsPid;
+    int  FatherPid;
+    char ItsName[256];
+} ProcInfo;
 
-typedef struct file_info{
-    int pid;         // 进程号
-    int ppid;        // 父进程号
-    char name[1024]; // 进程名称
-    int flag;        // 进程标志
-    int rec;         // 打印进程树时用来标记是几级进程的
-} info;
+ProcInfo Proc[4096];
+int vis[4096];
 
-int my_getpid(char *str){  // 获得进程号
-    int len=strlen(str);
-    char num[10];
-    int i,j,ret;
-    if(strncmp(str,"Pid",3)==0){
-        for(i=0;i<len;i++){
-            if(str[i]>='0'&&str[i]<='9') break;
+char Path[1024], buff[1024], temp[1024];
+
+int GetPid(char* str){
+    int res = 0;
+    char* s;
+    s = strstr(str, "Pid");
+    if(s != NULL){
+        for(; *s != '\0'; s++){
+            if(*s > '9' || *s < '0') break;
+            res = res * 10 + (*s - '0');
         }
-        for(j=0;j<len-i;j++) num[j]=str[i+j];
-        ret=atoi(num);
-    }else ret=0;
-    return ret;
+    }
+    return res;
 }
- 
-int my_getppid(char *str){  // 获得父进程号
-    int len=strlen(str);
-    char num[10];
-    int i,j,ret;
-    if(strncmp(str,"PPid",4)==0){
-        for(i=0;i<len;i++){
-            if(str[i]>='0'&&str[i]<='9') break;
-        }
-        for(j=0;j<len-i;j++) num[j]=str[i+j]; 
-        ret=atoi(num);
-    }else ret=0;
-    return ret;
-} 
- 
-int child_exist(info *file,int count,int ppid){  // 判断是否存在子进程
-    int i;
-    for(i=0;i<count;i++){
-        if(file[i].flag==0&&file[i].ppid==ppid) return 1;  
-    }
-    return 0;
-} 
 
-void print_pstree(info *file,int count,int ppid,int rec){  // 打印进程树，用递归方法，中序遍历
-    int i,j,k;
-    for(i=0;i<count;i++){
-        if(file[i].flag==0&&file[i].ppid==ppid){
-            file[i].rec=rec+1;
-            file[i].flag=1;
-            for(k=0;k<rec;k++) printf("  ");
-            printf("%s\n",file[i].name);
-            print_pstree(file,count,file[i].pid,file[i].rec);
+int GetPPid(char* str){
+    int res = 0;
+    char* s;
+    s = strstr(str, "PPid");
+    if(s != NULL){
+        for(; *s != '\0'; s++){
+            if(*s > '9' || *s < '0') break;
+            res = res * 10 + (*s - '0');
         }
     }
-} 
- 
+    return res;
+}
+
+void GetName(char* re, char* str){
+    char* s;
+    s = strstr(str, "Name");
+    if(s != NULL) for(; *s != '\n' && *s != '\0'; *re = *s, s++, re++);
+}
+
+void PrintProcTree(int fa, int de){
+    int i, j;
+    for(i = 0; i < Total; i++){
+        if(!vis[i] && Proc[i].FatherPid == fa){
+            vis[i] = 1;
+            for(j = 0; j < de; j++) printf("    ");
+            printf("%s\n", Proc[i].ItsName);
+            PrintProcTree(Proc[i].ItsPid, de + 1);
+        }
+    }
+}
+
 int main(){
-    int i,j,k,total,s1,s2,count,t;
-    char str[1024],dir[1024];
-    struct dirent **namelist;
-    strcpy(dir,default_path);
-    total = scandir(dir, &namelist, 0, alphasort);
-    printf("path=%s,total=%d\n",dir,total);
-    for(i=0;i<total;i++){
-        strcpy(str,namelist[i]->d_name);
-        if(str[0]>='0'&&str[0]<='9') count++;
-    }
-    printf("进程数:%d\n",count);
-    info file[1024];
-    i=0;t=0;
-    while(i<total){
-        FILE *fp;
-        char path[1024],name[1024];
-        int pid,ppid;
-        strcpy(str,namelist[i]->d_name);
-        strcpy(path,default_path);
-        if(str[0]>='0'&&str[0]<='9'){
-            strcat(path,str);
-            strcat(path,"/status");
-            fp=fopen(path,"r");
-            while(!feof(fp)){
-                fgets(str,1024,fp);                    //pid
-                if((s1=my_getpid(str))!=0) pid=s1;     //ppid
-                if((s2=my_getppid(str))!=0) ppid=s2;   //name     
-                if(strncmp(str,"Name",4)==0){
-                    for(j=4;j<strlen(str);j++){
-                        if(str[j]>='a'&&str[j]<='z') break;
-                    }
-                    for(k=j;k<strlen(str);k++){
-                        name[k-j]=str[k];
-                    }
-                    name[k-j-1]='\0';
-                }
-                file[t].pid=pid;
-                file[t].ppid=ppid;
-                strcpy(file[t].name,name);
-            }
-            fclose(fp);
-            t++;
+    int i;
+    struct dirent **NameList;
+    FILE *fp;
+    int ItsPid, FatherPid;
+
+    Total = 0;
+    top = scandir(ProcDir, &NameList, 0, alphasort);
+    for(i = 0; i < top; i++){
+        if(NameList[i]->d_name[0] > '9' || NameList[i]->d_name[i] < '0'){
+            Total = i + 1;
+            break;
         }
-        i++;
     }
-    memset(&file->flag,0,count);
-    memset(&file->rec,0,count);
-    print_pstree(file,count,0,0); 
+    printf("Total: %d\n", Total);
+    for(i = 0; i < Total; i++){
+        memcpy(Path, ProcDir, sizeof(ProcDir));
+        strcat(Path, NameList[i]->d_name);
+        strcat(Path, "/status");
+        fp = fopen(Path, "r");
+        while(!feof(fp)){
+            fget(buff, 1023, fp);
+            ItsPid = FatherPid = 0;
+            temp[0] = '\0';
+            if(!ItsPid) ItsPid = GetPid(buff);
+            if(!FatherPid) FatherPid = GetPPid(buff);
+            if(temp[0] == '\0') GetName(temp, buff);
+            if(ItsPid && FatherPid && temp[0] != '\0') break;
+        }
+        Proc[i].ItsPid = ItsPid, Proc[i].FatherPid = FatherPid;
+        strcpy(Proc[i].ItsName, temp);
+        fclose(fp);
+    }
+    memset(vis, 0, sizeof(vis));
+    PrintProcTree(0, 0);
+    return 0;
 }
