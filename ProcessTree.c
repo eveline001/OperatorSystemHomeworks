@@ -5,13 +5,11 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <errno.h>
-/*
 #include <netdb.h>
 #include <sys/types.h>
 #include <pthread.h>
 #include <unistd.h>
 #include <dirent.h>
-*/
 
 const char ProcDir[7] = "/proc/";
 int Total;
@@ -72,7 +70,7 @@ void PrintProcTree(int fa, int de){
 }
 
 int main(){
-    int i;
+    int i, top;
     struct dirent **NameList;
     FILE *fp;
     int ItsPid, FatherPid;
