@@ -90,7 +90,7 @@ int main(){
         strcat(Path, "/status");
         fp = fopen(Path, "r");
         while(!feof(fp)){
-            fget(buff, 1023, fp);
+            fgets(buff, 1023, fp);
             ItsPid = FatherPid = 0;
             temp[0] = '\0';
             if(!ItsPid) ItsPid = GetPid(buff);
