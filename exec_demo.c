@@ -20,7 +20,7 @@ int main(){
 	}else if(pid == 0){
 
 	/* 子进程 */
-		execlp("/bin/ls","ls",NULL);
+		execlp("/bin/ls", "ls", NULL);
 
 	}else{
 
