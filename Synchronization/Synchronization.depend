@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1493473443 source:e:\works\githubs\operatorsystemhomeworks\synchronization\main.cpp
+	<windows.h>
+	<iostream>
+	<cstdio>
+
