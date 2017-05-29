@@ -1,7 +1,7 @@
 #ifndef __WINDOW_H
 #define __WINDOW_H
 
-#include <QtGui>
+#include <QtWidgets/QApplication>
 #include <QWidget>
 #include <QPainter>
 #include "common.h"
