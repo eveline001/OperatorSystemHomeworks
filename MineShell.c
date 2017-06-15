@@ -39,6 +39,7 @@ int main()
         	while((CurSon = fork()) < 0);
         	if(CurSon == 0){
             	system(str);
+            	return 0;
         	}else{
             	wait(NULL);
             	printf("%s\n", str);
