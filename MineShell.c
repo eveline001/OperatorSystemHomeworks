@@ -1,5 +1,9 @@
+#include <sys/types.h>
+#include <sys/wait.h>
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 
 char op[256];
@@ -35,7 +39,7 @@ int main()
         if(strcmp(op, "jobs") == 0){
             system("ps");
         }
-        gets(arg);
+        fgets(arg, 256, stdin);
         sprintf(str, "%s %s", op, arg);
         while((CurSon = fork()) < 0);
         if(CurSon == 0){
