@@ -15,25 +15,18 @@ void CLIENT(){
 	int* data;
 	int cnt;
 
-	printf("1\n");
 	shmid = shmget(SHMKEY, sizeof(int), 0666);
-	printf("1\n");
 	shm = shmat(shmid, 0, 0);
-	printf("1\n");
 	data = (int*) shm;
-	printf("1\n");
 	cnt = 9;
-	while(cnt){
-		printf("1: %d\n", *data);
+	while(cnt != -1){
 		if(*data == -1){
 			printf("(client) sent \n");
 			*data = cnt;
 			cnt--;
-		}else sleep(1);
+		}
 	}
-	printf("1\n");
 	shmdt(shm);
-	printf("1\n");
 	exit(0);
 }
 
@@ -41,26 +34,19 @@ void SERVER(){
 	void* shm = NULL;
 	int* data;
 
-	printf("0\n");
 	shmid = shmget(SHMKEY, sizeof(int), 0666 | IPC_CREAT);
-	printf("0\n");
 	shm = shmat(shmid, 0, 0);
-	printf("0\n");
 	data = (int*) shm;
-	printf("0\n");
 	*data = -1;
 	do{
-		printf("0: %d\n",* data);
 		if(*data != -1){
 			printf("(Server) recieved\n");
+			if(*data == 0) break;
 			*data = -1;
-		}else sleep(1);
+		}
 	}while(*data != 0);
-	printf("0\n");
 	shmdt(shm);
-	printf("0\n");
 	shmctl(shmid, IPC_RMID, 0);
-	printf("0\n");
 	exit(0);
 }
 
