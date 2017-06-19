@@ -17,9 +17,9 @@ void CLIENT(){
 	shm = shmat(shmid, 0, 0);
 	cnt = 9;
 	while(1){
-		if(*shm == (void*) -1){
+		if(shm == (void*) -1){
 			printf("(client) sent \n");
-			*shm = (void*)cnt;
+			shm = (void*)cnt;
 			cnt--;
 		}
 		if(cnt == 0) break;
@@ -33,13 +33,13 @@ void SERVER(){
 
 	shmid = shmget(SHMKEY, sizeof(int), 0666 | IPC_CREAT);
 	shm = shmat(shmid, 0, 0);
-	*shm = (void*) -1;
+	shm = (void*) -1;
 	do{
-		if(*shm != (void*) -1){
+		if(shm != (void*) -1){
 			printf("(Server) recieved\n");
-			*shm = (void*) -1;
+			shm = (void*) -1;
 		}
-	}while(*shm == (void*) 0);
+	}while(shm == (void*) 0);
 	shmdt(shm);
 	shmctl(shmid, IPC_RMID, 0);
 	exit(0);
