@@ -21,13 +21,13 @@ void CLIENT(){
 	data = (int*) shm;
 	printf("1\n");
 	cnt = 9;
-	while(1){
+	while(cnt){
+		printf("1: %d\n", *data);
 		if(*data == -1){
 			printf("(client) sent \n");
 			*data = cnt;
 			cnt--;
-		}
-		if(cnt == 0) break;
+		}else sleep(1);
 	}
 	printf("1\n");
 	shmdt(shm);
@@ -47,12 +47,15 @@ void SERVER(){
 	data = (int*) shm;
 	printf("0\n");
 	*data = -1;
+/*
 	do{
+		printf("0: %d\n",* data);
 		if(*data != -1){
 			printf("(Server) recieved\n");
 			*data = -1;
-		}
+		}else sleep(1);
 	}while(*data != 0);
+*/
 	printf("0\n");
 	shmdt(shm);
 	printf("0\n");
