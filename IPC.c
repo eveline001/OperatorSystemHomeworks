@@ -6,7 +6,7 @@
 #include <sys/ipc.h>
 #include <sys/wait.h>
 
-#define MSGKEY 75 
+#define MSGKEY 75
 
 struct msgform{
 	long mtype; 
