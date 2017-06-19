@@ -29,7 +29,9 @@ void CLIENT(){
 		}
 		if(cnt == 0) break;
 	}
+	printf("1\n");
 	shmdt(shm);
+	printf("1\n");
 	exit(0);
 }
 
@@ -51,8 +53,11 @@ void SERVER(){
 			*data = -1;
 		}
 	}while(*data == 0);
+	printf("0\n");
 	shmdt(shm);
+	printf("0\n");
 	shmctl(shmid, IPC_RMID, 0);
+	printf("0\n");
 	exit(0);
 }
 
