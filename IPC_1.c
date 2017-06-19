@@ -52,7 +52,7 @@ void SERVER(){
 			printf("(Server) recieved\n");
 			*data = -1;
 		}
-	}while(*data == 0);
+	}while(*data != 0);
 	printf("0\n");
 	shmdt(shm);
 	printf("0\n");
