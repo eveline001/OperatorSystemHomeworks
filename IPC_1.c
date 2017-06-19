@@ -16,6 +16,8 @@ void CLIENT(){
 	int cnt;
 
 	printf("1\n");
+	shmid = shmget(SHMKEY, sizeof(int), 0666);
+	printf("1\n");
 	shm = shmat(shmid, 0, 0);
 	printf("1\n");
 	data = (int*) shm;
@@ -47,7 +49,6 @@ void SERVER(){
 	data = (int*) shm;
 	printf("0\n");
 	*data = -1;
-/*
 	do{
 		printf("0: %d\n",* data);
 		if(*data != -1){
@@ -55,7 +56,6 @@ void SERVER(){
 			*data = -1;
 		}else sleep(1);
 	}while(*data != 0);
-*/
 	printf("0\n");
 	shmdt(shm);
 	printf("0\n");
