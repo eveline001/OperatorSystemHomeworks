@@ -15,8 +15,11 @@ void CLIENT(){
 	int* data;
 	int cnt;
 
+	printf("1\n");
 	shm = shmat(shmid, 0, 0);
+	printf("1\n");
 	data = (int*) shm;
+	printf("1\n");
 	cnt = 9;
 	while(1){
 		if(*data == -1){
@@ -34,9 +37,13 @@ void SERVER(){
 	void* shm = NULL;
 	int* data;
 
+	printf("0\n");
 	shmid = shmget(SHMKEY, sizeof(int), 0666 | IPC_CREAT);
+	printf("0\n");
 	shm = shmat(shmid, 0, 0);
+	printf("0\n");
 	data = (int*) shm;
+	printf("0\n");
 	*data = -1;
 	do{
 		if(*data != -1){
