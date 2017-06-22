@@ -6,7 +6,16 @@ int main()
 { 
 	int x;
 	while((x = fork()) == -1);
-	if(x == 0) printf("a");
-	else printf("b");
+	if(x == 0){
+		printf("a");
+		return 0;
+	}
+	wait(0);
+	while((x = fork()) == -1);
+	if(x == 0){
+		printf("b");
+		return 0;
+	}
+	wait(0);
 	printf("c");
 }
