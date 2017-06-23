@@ -11,6 +11,7 @@ int n;
 
 int Need[MAXN][MAXM];
 bool Finish[MAXN];
+int SafetQ[MAXN];
 int finished;
 
 bool IsAvailable(const int thisNeed[], const int thisAvailable[]){
@@ -55,6 +56,7 @@ int main()
             if(!Finish[i]){
                 if(IsAvailable(Need[i], Available)){
                     Finish[i] = true;
+                    SafetQ[times] = i;
                     finished++;
                     LineAdd(Available, Claim[i]);
                 }
@@ -63,6 +65,9 @@ int main()
     }
     if(finished == n){
         cout << "True" << endl;
+        cout << "Safet Queue: ";
+        for(int i = 0; i < n; i++) cout << SafetQ[i] << ' ';
+        cout << endl;
     }else{
         cout << "False" << endl;
     }
